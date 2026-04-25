@@ -9,6 +9,7 @@
   libnotify,
   bun,
   gst_all_1,
+  withWebview ? true,
 }:
 let
   fullSrc = ./..;
@@ -95,7 +96,7 @@ stdenvNoCC.mkDerivation (finalAttrs: {
   ];
   binPath = lib.makeBinPath finalAttrs.binPackages;
 
-  libPackages = [
+  libPackages = lib.optionals withWebview [
     webview
   ]
   ++ lib.optionals stdenvNoCC.isLinux [
@@ -108,10 +109,12 @@ stdenvNoCC.mkDerivation (finalAttrs: {
 
   runtimeEnv =
     lib.optionalAttrs stdenvNoCC.isLinux {
-      WEBVIEW_PATH = findLib (fileName: fileName == "libwebview.so") finalAttrs.libPackages;
       GST_PLUGIN_PATH = findLib (fileName: fileName == "gstreamer-1.0") finalAttrs.libPackages;
     }
-    // lib.optionalAttrs stdenvNoCC.isDarwin {
+    // lib.optionalAttrs (withWebview && stdenvNoCC.isLinux) {
+      WEBVIEW_PATH = findLib (fileName: fileName == "libwebview.so") finalAttrs.libPackages;
+    }
+    // lib.optionalAttrs (withWebview && stdenvNoCC.isDarwin) {
       WEBVIEW_PATH = findLib (fileName: fileName == "libwebview.dylib") finalAttrs.libPackages;
     };
 

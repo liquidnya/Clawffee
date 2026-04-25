@@ -6,6 +6,11 @@
     flake-utils.url = "github:numtide/flake-utils";
     treefmt-nix.url = "github:numtide/treefmt-nix";
     treefmt-nix.inputs.nixpkgs.follows = "nixpkgs";
+    nix-appimage = {
+      url = "github:ralismark/nix-appimage";
+      inputs.nixpkgs.follows = "nixpkgs";
+      inputs.flake-utils.follows = "flake-utils";
+    };
   };
   outputs =
     inputs:
@@ -15,6 +20,9 @@
         pkgs.lib.makeScope pkgs.newScope (self: {
           webview = self.callPackage ./nix/webview.nix { };
           clawffee = self.callPackage ./nix/clawffee.nix { };
+          clawffee-appimage = inputs.nix-appimage.bundlers.${pkgs.stdenv.system}.default (
+            self.clawffee.override { withWebview = false; }
+          );
         });
     in
     inputs.flake-utils.lib.eachDefaultSystem (
@@ -25,7 +33,7 @@
       in
       {
         packages = rec {
-          inherit (buildPackages pkgs) clawffee;
+          inherit (buildPackages pkgs) clawffee clawffee-appimage;
           default = clawffee;
         };
         devShells = rec {
