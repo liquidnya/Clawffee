@@ -30,11 +30,11 @@ llvmPackages.stdenv.mkDerivation (finalAttrs: {
     graphviz
   ];
   buildInputs =
-    lib.optionals stdenv.hostPlatform.isLinux [
+    lib.optionals stdenv.isLinux [
       webkitgtk_6_0
       gtk4
     ]
-    ++ lib.optionals stdenv.hostPlatform.isDarwin [
+    ++ lib.optionals stdenv.isDarwin [
       apple-sdk
       llvmPackages.libcxx
     ];
